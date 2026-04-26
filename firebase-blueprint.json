@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "Room": {
+      "title": "Room",
+      "description": "A game room instance.",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["waiting", "setup", "playing", "finished"] },
+        "hostId": { "type": "string" },
+        "guestId": { "type": "string" },
+        "hostName": { "type": "string" },
+        "guestName": { "type": "string" },
+        "currentPlayerId": { "type": "string" },
+        "lastGuess": { "type": "number" },
+        "isAwaitingFeedback": { "type": "boolean" },
+        "p1GuessCount": { "type": "number" },
+        "p2GuessCount": { "type": "number" },
+        "p1Range": { 
+          "type": "object",
+          "properties": {
+            "min": { "type": "number" },
+            "max": { "type": "number" }
+          }
+        },
+        "p2Range": { 
+          "type": "object",
+          "properties": {
+            "min": { "type": "number" },
+            "max": { "type": "number" }
+          }
+        },
+        "winnerId": { "type": "string" }
+      },
+      "required": ["status", "hostId", "hostName"]
+    },
+    "Secret": {
+      "title": "Secret",
+      "description": "The secret number of a player.",
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" }
+      },
+      "required": ["value"]
+    },
+    "HistoryItem": {
+      "title": "HistoryItem",
+      "description": "A record of a guess and its feedback.",
+      "type": "object",
+      "properties": {
+        "playerId": { "type": "string" },
+        "guess": { "type": "number" },
+        "feedback": { "type": "string", "enum": ["higher", "lower", "correct"] },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["playerId", "guess", "feedback", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/rooms/{roomId}": {
+      "schema": "Room",
+      "description": "Game room state."
+    },
+    "/rooms/{roomId}/secrets/{playerId}": {
+      "schema": "Secret",
+      "description": "Secret numbers hidden from opponents."
+    },
+    "/rooms/{roomId}/history/{itemId}": {
+      "schema": "HistoryItem",
+      "description": "Log of guesses."
+    }
+  }
+}

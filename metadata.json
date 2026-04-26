@@ -1,0 +1,6 @@
+{
+  "name": "Number Duel",
+  "description": "A competitive two-player number guessing game with live narrowing ranges and guess history.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

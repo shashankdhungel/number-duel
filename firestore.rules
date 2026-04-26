@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 3. Global Helpers
+    function isSignedIn() { return request.auth != null; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    
+    function isRoomPlayer(roomId) {
+      let room = get(/databases/$(database)/documents/rooms/$(roomId)).data;
+      return request.auth.uid == room.hostId || request.auth.uid == room.guestId;
+    }
+
+    // 1. Master Gate: Rooms
+    match /rooms/{roomId} {
+      allow get: if isSignedIn();
+      
+      // Validation Helper for Room
+      function isValidRoom(data) {
+        return data.hostName is string && data.hostName.size() <= 50
+          && (data.status in ['waiting', 'setup', 'playing', 'finished'])
+          && (data.guestId == null || data.guestId is string)
+          && (data.guestName == null || (data.guestName is string && data.guestName.size() <= 50));
+      }
+
+      allow create: if isSignedIn() 
+        && isValidId(roomId)
+        && isValidRoom(incoming())
+        && incoming().hostId == request.auth.uid
+        && incoming().status == 'waiting'
+        && incoming().p1GuessCount == 0
+        && incoming().p2GuessCount == 0;
+
+      allow update: if isSignedIn() && isValidRoom(incoming()) && (
+        // Action: Join
+        (existing().status == 'waiting' && incoming().status == 'setup' 
+         && incoming().guestId == request.auth.uid
+         && incoming().diff(existing()).affectedKeys().hasOnly(['guestId', 'guestName', 'status', 'p1Range', 'p2Range', 'p1GuessCount', 'p2GuessCount', 'currentPlayerId'])) ||
+        
+        // Action: Ready (When both secrets are set)
+        (isRoomPlayer(roomId) && existing().status == 'setup' && incoming().status == 'playing'
+         && incoming().diff(existing()).affectedKeys().hasOnly(['status'])) ||
+
+        // Action: Guess
+        (existing().status == 'playing' && existing().currentPlayerId == request.auth.uid 
+         && !existing().isAwaitingFeedback
+         && incoming().isAwaitingFeedback == true
+         && incoming().lastGuess is number
+         && incoming().lastGuess >= 0 && incoming().lastGuess <= 100
+         && (request.auth.uid == existing().hostId ? incoming().p1GuessCount == existing().p1GuessCount + 1 : incoming().p2GuessCount == existing().p2GuessCount + 1)
+         && incoming().diff(existing()).affectedKeys().hasOnly(['lastGuess', 'isAwaitingFeedback', 'p1GuessCount', 'p2GuessCount'])) ||
+        
+        // Action: Feedback
+        (existing().status == 'playing' && existing().currentPlayerId != request.auth.uid 
+         && existing().isAwaitingFeedback
+         && incoming().isAwaitingFeedback == false
+         && (incoming().status == 'playing' || (incoming().status == 'finished' && incoming().winnerId == existing().currentPlayerId))
+         && incoming().diff(existing()).affectedKeys().hasOnly(['isAwaitingFeedback', 'currentPlayerId', 'status', 'p1Range', 'p2Range', 'winnerId']))
+      );
+    }
+
+    // 2. Secrets (Hidden)
+    match /rooms/{roomId}/secrets/{playerId} {
+       allow read, write: if isSignedIn() && request.auth.uid == playerId && isValidId(roomId);
+    }
+
+    // 3. History (Public for room players)
+    match /rooms/{roomId}/history/{itemId} {
+       allow get: if isSignedIn() && isRoomPlayer(roomId);
+       allow list: if isSignedIn() && isRoomPlayer(roomId);
+       allow create: if isSignedIn() && isRoomPlayer(roomId)
+         && incoming().playerId == request.auth.uid
+         && incoming().guess is number
+         && incoming().timestamp == request.time;
+    }
+  }
+}
