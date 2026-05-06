@@ -273,7 +273,7 @@ export default function App() {
                     <p className="text-slate-400 text-sm font-medium">Pick a number between 0 and 100</p>
                   </div>
 
-                  {secrets.mySecret === null ? (
+                  {mySecret === null ? (
                     <div className="space-y-4">
                       <div className="relative">
                         <input 
@@ -411,7 +411,7 @@ export default function App() {
                             </div>
                             <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 inline-block">
                               <p className="text-[10px] font-black text-indigo-400 uppercase mb-1">Your Secret</p>
-                              <p className="text-2xl font-black text-indigo-600">{secrets.mySecret}</p>
+                              <p className="text-2xl font-black text-indigo-600">{mySecret}</p>
                             </div>
                           </div>
                         )}
