@@ -27,7 +27,7 @@ export function useGameSocket(options: UseGameSocketOptions = {}) {
 
   // Connect to WebSocket
   useEffect(() => {
-    if (!playerId) return;
+    
 
     const connect = () => {
       try {
@@ -92,7 +92,7 @@ export function useGameSocket(options: UseGameSocketOptions = {}) {
         wsRef.current.close();
       }
     };
-  }, [playerId, options]);
+  }, []);
 
   const handleMessage = useCallback(
     (message: GameMessage) => {
