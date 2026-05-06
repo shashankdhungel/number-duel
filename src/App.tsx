@@ -425,7 +425,7 @@ export default function App() {
                       <History className="w-3 h-3" /> Live Feed
                     </h4>
                     <div className="h-32 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                      {history.map((item, i) => (
+                      {room.history.map((item, i) => (
                         <motion.div 
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
