@@ -10,7 +10,7 @@ export default defineConfig(({mode}) => {
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'import.meta.env.VITE_WS_URL': JSON.stringify(
-        env.VITE_WS_URL || 'wss://number-duel-game.onrender.com'
+        env.VITE_WS_URL || (mode === 'development' ? 'ws://localhost:3001' : undefined)
       ),
     },
     resolve: {
@@ -22,13 +22,7 @@ export default defineConfig(({mode}) => {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
-      proxy: {
-        '/ws': {
-          target: 'ws://localhost:3001',
-          ws: true,
-          rewrite: (path) => path.replace(/^\/ws/, ''),
-        },
-      },
+
     },
   };
 });

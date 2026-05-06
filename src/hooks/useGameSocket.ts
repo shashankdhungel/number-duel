@@ -31,7 +31,14 @@ export function useGameSocket(options: UseGameSocketOptions = {}) {
 
     const connect = () => {
       try {
-        const ws = new WebSocket(import.meta.env.VITE_WS_URL || 'ws://localhost:3001');
+        // Determine WebSocket URL
+        let wsUrl = import.meta.env.VITE_WS_URL;
+        if (!wsUrl) {
+          // In production, construct from current origin
+          const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+          wsUrl = `${protocol}//${window.location.host}`;
+        }
+        const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
           console.log('WebSocket connected');

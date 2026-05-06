@@ -1,6 +1,7 @@
 import express from 'express';
 import WebSocket, { WebSocketServer } from 'ws';
 import { createServer } from 'http';
+import path from 'path';
 
 const app = express();
 const server = createServer(app);
@@ -481,6 +482,14 @@ wss.on('connection', (ws: WebSocket) => {
 // HTTP endpoint for health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Serve static files from dist folder
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Fallback to index.html for React Router (must be after static files and specific routes)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 const PORT = 3001;
