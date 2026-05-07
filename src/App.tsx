@@ -35,6 +35,15 @@ interface RoomData {
   hostSecret?: number | null;
   guestSecret?: number | null;
   history: HistoryItem[];
+  leaderboard?: {
+    [playerId: string]: {
+      name: string;
+      wins: number;
+      losses: number;
+      totalGuesses: number;
+      fastestWin: number | null;
+    }
+  };
 }
 
 interface HistoryItem {
@@ -84,6 +93,7 @@ export default function App() {
         history: data.history || [],
         hostSecret: data.hostSecret,
         guestSecret: data.guestSecret,
+        leaderboard: data.leaderboard,
       };
       setRoom(roomData);
       
@@ -521,6 +531,53 @@ export default function App() {
                       {' '}guesses
                     </div>
                   </div>
+
+                  {/* Round Leaderboard */}
+                  {room?.leaderboard && (
+                    <div className="bg-slate-900 text-white p-6 sm:p-8 rounded-2xl">
+                      <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Round Leaderboard</div>
+                      <div className="space-y-3">
+                        {Object.entries(room.leaderboard)
+                          .sort((a, b) => {
+                            const aWins = a[1].wins;
+                            const bWins = b[1].wins;
+                            if (aWins !== bWins) return bWins - aWins;
+                            return (a[1].fastestWin ?? Infinity) - (b[1].fastestWin ?? Infinity);
+                          })
+                          .map((entry, index) => {
+                            const [playerId, stats] = entry;
+                            const isLeader = index === 0;
+                            const avgGuesses = stats.totalGuesses > 0 ? (stats.totalGuesses / stats.wins || 0).toFixed(1) : '—';
+                            return (
+                              <div 
+                                key={playerId}
+                                className={`p-4 rounded-xl border-2 ${isLeader ? 'bg-indigo-50/20 border-indigo-400/50' : 'border-slate-700'} flex items-center justify-between`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  {isLeader && <Trophy className="w-5 h-5 text-yellow-400" />}
+                                  <div className="text-xs font-black uppercase text-slate-300">{index === 0 ? '1st' : '2nd'}</div>
+                                  <div className="font-black text-sm">{stats.name}</div>
+                                </div>
+                                <div className="flex gap-6 text-xs font-bold text-slate-300">
+                                  <div className="text-center">
+                                    <div className="text-indigo-400 font-black text-sm">{stats.wins}W</div>
+                                    <div className="text-slate-500">{stats.losses}L</div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-indigo-400 font-black text-sm">{avgGuesses}</div>
+                                    <div className="text-slate-500">avg</div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-indigo-400 font-black text-sm">{stats.fastestWin ?? '—'}</div>
+                                    <div className="text-slate-500">best</div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  )}
                   <div className="space-y-3">
                     <button 
                       onClick={resetGame}

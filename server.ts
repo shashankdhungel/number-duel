@@ -12,6 +12,14 @@ const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
 // Types
+interface LeaderboardEntry {
+  name: string;
+  wins: number;
+  losses: number;
+  totalGuesses: number;
+  fastestWin: number | null;
+}
+
 interface GameRoom {
   roomId: string;
   status: 'waiting' | 'setup' | 'playing' | 'finished';
@@ -30,6 +38,7 @@ interface GameRoom {
   hostSecret?: number;
   guestSecret?: number;
   history: HistoryItem[];
+  leaderboard: { [playerId: string]: LeaderboardEntry };
 }
 
 interface HistoryItem {
@@ -92,6 +101,7 @@ function broadcastRoomUpdate(roomId: string) {
       p2Range: room.p2Range,
       winnerId: room.winnerId,
       history: room.history,
+      leaderboard: room.leaderboard,
     };
 
     // Send personal secret during setup and playing phases
@@ -134,6 +144,15 @@ function handleCreate(ws: WebSocket, payload: any) {
     p1Range: { min: 0, max: 100 },
     p2Range: { min: 0, max: 100 },
     history: [],
+    leaderboard: {
+      [playerId]: {
+        name: playerName,
+        wins: 0,
+        losses: 0,
+        totalGuesses: 0,
+        fastestWin: null,
+      }
+    }
   };
 
   rooms.set(roomId, room);
@@ -168,6 +187,17 @@ function handleJoin(ws: WebSocket, payload: any) {
     room.guestId = playerId;
     room.guestName = playerName;
     room.status = 'setup';
+    
+    // Add guest to leaderboard if not already there
+    if (!room.leaderboard[playerId]) {
+      room.leaderboard[playerId] = {
+        name: playerName,
+        wins: 0,
+        losses: 0,
+        totalGuesses: 0,
+        fastestWin: null,
+      };
+    }
   }
 
   const player = players.get(playerId);
@@ -324,6 +354,23 @@ function handleFeedback(ws: WebSocket, payload: any) {
   if (feedback === 'correct') {
     room.status = 'finished';
     room.winnerId = room.currentPlayerId;
+    
+    // Update leaderboard
+    const winner = room.winnerId;
+    const loser = winner === room.hostId ? room.guestId : room.hostId;
+    const winnerGuesses = winner === room.hostId ? room.p1GuessCount : room.p2GuessCount;
+    
+    if (room.leaderboard[winner]) {
+      room.leaderboard[winner].wins++;
+      room.leaderboard[winner].totalGuesses += winnerGuesses;
+      if (room.leaderboard[winner].fastestWin === null || winnerGuesses < room.leaderboard[winner].fastestWin) {
+        room.leaderboard[winner].fastestWin = winnerGuesses;
+      }
+    }
+    
+    if (loser && room.leaderboard[loser]) {
+      room.leaderboard[loser].losses++;
+    }
   } else {
     // Update range
     const guessingPlayerId = room.currentPlayerId;
