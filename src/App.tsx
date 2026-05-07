@@ -32,6 +32,8 @@ interface RoomData {
   p2Range: { min: number; max: number };
   winnerId?: string;
   mySecret?: number | null;
+  hostSecret?: number | null;
+  guestSecret?: number | null;
   history: HistoryItem[];
 }
 
@@ -80,11 +82,22 @@ export default function App() {
         p2Range: data.p2Range,
         winnerId: data.winnerId,
         history: data.history || [],
+        hostSecret: data.hostSecret,
+        guestSecret: data.guestSecret,
       };
       setRoom(roomData);
-      if (data.mySecret !== undefined && data.mySecret !== null) {
+      
+      // Always sync mySecret with server state (including null/undefined)
+      if (data.mySecret !== undefined) {
         setMySecret(data.mySecret);
       }
+      
+      // When transitioning to setup, clear the inputs and errors
+      if (data.status === 'setup') {
+        setGuessInput("");
+        setFeedbackError("");
+      }
+      
       setRoomId(data.roomId);
       setError("");
     },
@@ -485,6 +498,27 @@ export default function App() {
                         <div className="text-[10px] text-slate-500 font-black uppercase mb-1">Efficiency</div>
                         <div className="text-3xl sm:text-4xl font-black text-indigo-400">{room?.winnerId === room?.hostId ? room?.p1GuessCount : room?.p2GuessCount}x</div>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Secrets Revealed */}
+                  <div className="bg-slate-50 p-6 sm:p-8 rounded-2xl border-2 border-slate-200">
+                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Both Secrets Revealed</div>
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className={`p-4 rounded-xl text-center ${room?.winnerId === room?.hostId ? 'bg-green-50 border-2 border-green-200' : 'bg-slate-100 border-2 border-slate-200'}`}>
+                        <div className="text-xs font-black uppercase text-slate-600 mb-2">{room?.hostName}</div>
+                        <div className={`text-2xl sm:text-3xl font-black ${room?.winnerId === room?.hostId ? 'text-green-600' : 'text-slate-400'}`}>{room?.hostSecret}</div>
+                      </div>
+                      <div className={`p-4 rounded-xl text-center ${room?.winnerId === room?.guestId ? 'bg-green-50 border-2 border-green-200' : 'bg-slate-100 border-2 border-slate-200'}`}>
+                        <div className="text-xs font-black uppercase text-slate-600 mb-2">{room?.guestName}</div>
+                        <div className={`text-2xl sm:text-3xl font-black ${room?.winnerId === room?.guestId ? 'text-green-600' : 'text-slate-400'}`}>{room?.guestSecret}</div>
+                      </div>
+                    </div>
+                    <div className="text-center text-sm font-bold text-slate-600">
+                      <span className="text-indigo-600 font-black">{room?.winnerId === room?.hostId ? room?.hostName : room?.guestName}</span> 
+                      {' '}guessed correctly in 
+                      <span className="text-indigo-600 font-black ml-1">{room?.winnerId === room?.hostId ? room?.p1GuessCount : room?.p2GuessCount}</span>
+                      {' '}guesses
                     </div>
                   </div>
                   <div className="space-y-3">

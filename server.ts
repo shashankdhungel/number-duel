@@ -94,11 +94,19 @@ function broadcastRoomUpdate(roomId: string) {
       history: room.history,
     };
 
-    // Only send my secret to me
-    if (player.playerId === room.hostId) {
-      payload.mySecret = room.hostSecret ?? null;
-    } else if (player.playerId === room.guestId) {
-      payload.mySecret = room.guestSecret ?? null;
+    // Send personal secret during setup and playing phases
+    if (room.status === 'setup' || room.status === 'playing') {
+      if (player.playerId === room.hostId) {
+        payload.mySecret = room.hostSecret ?? null;
+      } else if (player.playerId === room.guestId) {
+        payload.mySecret = room.guestSecret ?? null;
+      }
+    }
+    
+    // Reveal both secrets when game is finished
+    if (room.status === 'finished') {
+      payload.hostSecret = room.hostSecret ?? null;
+      payload.guestSecret = room.guestSecret ?? null;
     }
 
     sendMessage(player.ws, 'ROOM_UPDATE', payload);
