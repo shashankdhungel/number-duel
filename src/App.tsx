@@ -64,6 +64,7 @@ export default function App() {
   const [feedbackError, setFeedbackError] = useState("");
   const [mySecret, setMySecret] = useState<number | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [roundNumber, setRoundNumber] = useState(1);
 
   const gameSocket = useGameSocket({
     onConnected: (playerId) => {
@@ -108,6 +109,11 @@ export default function App() {
         setFeedbackError("");
       }
       
+      // Increment round on finished → reset transition
+      if (data.status === 'finished' && room?.status !== 'finished') {
+        setRoundNumber(prev => prev + 1);
+      }
+      
       setRoomId(data.roomId);
       setError("");
     },
@@ -121,6 +127,7 @@ export default function App() {
     setIsLoading(true);
     setError("");
     gameSocket.createRoom(userName);
+    setRoundNumber(1);
     setIsLoading(false);
   };
 
@@ -186,7 +193,7 @@ export default function App() {
     <div className={`min-h-screen font-sans flex flex-col items-center justify-center p-0 sm:p-4 transition-colors duration-500 ${
       room?.status === 'playing' ? (isMyTurn ? 'bg-indigo-50/50' : 'bg-slate-50') : 'bg-slate-50'
     }`}>
-      <div className="w-full max-w-full sm:max-w-sm h-screen sm:h-auto">
+      <div className="w-full max-w-full sm:max-w-sm lg:max-w-2xl h-screen sm:h-auto">
         <motion.div 
           layout
           className="bg-white sm:rounded-[2rem] rounded-none shadow-none sm:shadow-2xl overflow-hidden border-0 sm:border border-slate-100 h-full sm:h-auto flex flex-col"
@@ -337,132 +344,166 @@ export default function App() {
                 /* PLAYING */
                 <motion.div 
                   key="playing"
-                  className="space-y-2 sm:space-y-3 flex flex-col h-full"
+                  className="grid lg:grid-cols-5 gap-3 h-full"
                 >
-                  {/* Scoreboard */}
-                  <div className="flex justify-between items-center p-3 sm:p-4 bg-slate-50 rounded-2xl border border-slate-100 flex-shrink-0">
-                    <div className="text-left">
-                      <p className={`text-[10px] font-black uppercase ${iAmHost ? 'text-indigo-600' : 'text-slate-400'}`}>{room.hostName}</p>
-                      <p className="text-base sm:text-lg font-black">{room.p1GuessCount} <span className="text-[10px] font-bold text-slate-300 uppercase">Guesses</span></p>
+                  {/* LEFT SECTION: Main Action Area */}
+                  <div className="lg:col-span-3 flex flex-col gap-2">
+                    {/* Scoreboard */}
+                    <div className="flex justify-between items-center p-2 bg-slate-50 rounded-2xl border border-slate-100 flex-shrink-0">
+                      <div className="text-left">
+                        <p className={`text-[10px] font-black uppercase ${iAmHost ? 'text-indigo-600' : 'text-slate-400'}`}>{room.hostName}</p>
+                        <p className="text-sm sm:text-base font-black">{room.p1GuessCount} <span className="text-[10px] font-bold text-slate-300 uppercase">Guesses</span></p>
+                      </div>
+                      <div className="w-px h-6 bg-slate-200" />
+                      <div className="text-right">
+                        <p className={`text-[10px] font-black uppercase ${!iAmHost ? 'text-indigo-600' : 'text-slate-400'}`}>{room.guestName}</p>
+                        <p className="text-sm sm:text-base font-black">{room.p2GuessCount} <span className="text-[10px] font-bold text-slate-300 uppercase">Guesses</span></p>
+                      </div>
                     </div>
-                    <div className="w-px h-8 bg-slate-200" />
-                    <div className="text-right">
-                      <p className={`text-[10px] font-black uppercase ${!iAmHost ? 'text-indigo-600' : 'text-slate-400'}`}>{room.guestName}</p>
-                      <p className="text-base sm:text-lg font-black">{room.p2GuessCount} <span className="text-[10px] font-bold text-slate-300 uppercase">Guesses</span></p>
-                    </div>
-                  </div>
 
-                  {/* Main Action */}
-                  <div className="text-center py-2 sm:py-4 flex-1 overflow-y-auto">
-                    {isMyTurn ? (
-                      <div>
-                        {room.isAwaitingFeedback ? (
-                          <div className="space-y-4 sm:space-y-6">
-                            <RefreshCw className="w-10 sm:w-12 h-10 sm:h-12 text-indigo-300 animate-spin mx-auto" />
-                            <div>
-                              <h3 className="text-lg sm:text-xl font-black text-slate-800">Awaiting Verdict</h3>
-                              <p className="text-slate-400 text-xs sm:text-sm font-medium mt-1">You guessed <span className="text-slate-900 font-black">{room.lastGuess}</span></p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="space-y-4 sm:space-y-6">
-                            <div>
-                              <h3 className="text-xl sm:text-2xl font-black text-indigo-600">Your Move</h3>
-                              <p className="text-slate-400 text-xs sm:text-sm font-medium">Guess {opponentName}'s secret number</p>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-2">
-                              <input 
-                                type="number"
-                                className="flex-1 p-4 sm:p-5 text-3xl sm:text-4xl font-black bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-slate-200 text-base min-h-[48px]"
-                                placeholder="..."
-                                value={guessInput}
-                                onChange={(e) => setGuessInput(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleGuess()}
-                              />
-                              <button 
-                                onClick={handleGuess}
-                                className="px-6 sm:px-8 rounded-2xl bg-indigo-600 text-white font-black shadow-xl shadow-indigo-100 active:scale-95 transition-all text-lg sm:text-xl h-12 sm:h-auto min-h-[48px] flex items-center justify-center"
-                              >
-                                GO
-                              </button>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
-                                <span>{myRange?.min}</span>
-                                <span>Range Indicator</span>
-                                <span>{myRange?.max}</span>
+                    {/* Main Action */}
+                    <div className="text-center py-1 sm:py-2 flex-1 overflow-hidden flex flex-col justify-center">
+                      {isMyTurn ? (
+                        <div className="gap-2 flex flex-col">
+                          {room.isAwaitingFeedback ? (
+                            <div className="gap-2 flex flex-col">
+                              <RefreshCw className="w-8 sm:w-10 h-8 sm:h-10 text-indigo-300 animate-spin mx-auto" />
+                              <div>
+                                <h3 className="text-base sm:text-lg font-black text-slate-800">Awaiting Verdict</h3>
+                                <p className="text-slate-400 text-xs font-medium">You guessed <span className="text-slate-900 font-black">{room.lastGuess}</span></p>
                               </div>
-                              <div className="h-3 sm:h-4 bg-slate-100 rounded-full relative overflow-hidden">
-                                <motion.div 
-                                  className="absolute top-0 h-full rounded-full bg-gradient-to-r from-indigo-500 to-blue-500"
-                                  animate={{ 
-                                    left: `${myRange?.min}%`,
-                                    width: `${(myRange?.max || 100) - (myRange?.min || 0)}%`
-                                  }}
+                            </div>
+                          ) : (
+                            <div className="gap-2 flex flex-col">
+                              <div>
+                                <h3 className="text-lg sm:text-xl font-black text-indigo-600">Your Move</h3>
+                                <p className="text-slate-400 text-[10px] sm:text-xs font-medium">Guess {opponentName}'s secret</p>
+                              </div>
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                <input 
+                                  type="number"
+                                  className="flex-1 p-3 sm:p-4 text-2xl sm:text-3xl font-black bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-slate-200 text-base min-h-[48px]"
+                                  placeholder="..."
+                                  value={guessInput}
+                                  onChange={(e) => setGuessInput(e.target.value)}
+                                  onKeyPress={(e) => e.key === 'Enter' && handleGuess()}
                                 />
+                                <button 
+                                  onClick={handleGuess}
+                                  className="px-6 sm:px-8 rounded-2xl bg-indigo-600 text-white font-black shadow-xl shadow-indigo-100 active:scale-95 transition-all text-lg sm:text-xl h-12 sm:h-auto min-h-[48px] flex items-center justify-center flex-shrink-0"
+                                >
+                                  GO
+                                </button>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">
+                                  <span>{myRange?.min}</span>
+                                  <span>Range</span>
+                                  <span>{myRange?.max}</span>
+                                </div>
+                                <div className="h-2 bg-slate-100 rounded-full relative overflow-hidden">
+                                  <motion.div 
+                                    className="absolute top-0 h-full rounded-full bg-gradient-to-r from-indigo-500 to-blue-500"
+                                    animate={{ 
+                                      left: `${myRange?.min}%`,
+                                      width: `${(myRange?.max || 100) - (myRange?.min || 0)}%`
+                                    }}
+                                  />
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="space-y-4 sm:space-y-6">
-                        {room.isAwaitingFeedback ? (
-                          <div className="space-y-4 sm:space-y-6">
-                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Incoming Guess</div>
-                            <div className="text-6xl sm:text-8xl font-black text-slate-900 drop-shadow-sm">{room.lastGuess}</div>
-                            <p className="text-xs sm:text-sm font-bold text-slate-500 italic">Your secret is <span className="text-indigo-600 font-black px-2 py-1 bg-indigo-50 rounded-lg">{mySecret}</span></p>
-                            <div className="grid grid-cols-3 gap-2">
-                              <button onClick={() => provideFeedback('higher')} className="flex flex-col items-center justify-center gap-1 sm:gap-2 p-3 sm:p-4 bg-amber-50 text-amber-600 border-2 border-amber-100 rounded-xl sm:rounded-2xl hover:bg-amber-100 active:scale-95 transition-all font-black text-[10px] sm:text-xs uppercase tracking-tighter min-h-[48px]">
-                                <ChevronUp className="w-5 sm:w-6 h-5 sm:h-6" /> Higher
-                              </button>
-                              <button onClick={() => provideFeedback('correct')} className="flex flex-col items-center justify-center gap-1 sm:gap-2 p-3 sm:p-4 bg-green-50 text-green-600 border-2 border-green-100 rounded-xl sm:rounded-2xl hover:bg-green-100 active:scale-95 transition-all font-black text-[10px] sm:text-xs uppercase tracking-tighter min-h-[48px]">
-                                <CheckCircle2 className="w-5 sm:w-6 h-5 sm:h-6" /> Got It
-                              </button>
-                              <button onClick={() => provideFeedback('lower')} className="flex flex-col items-center justify-center gap-1 sm:gap-2 p-3 sm:p-4 bg-indigo-50 text-indigo-600 border-2 border-indigo-100 rounded-xl sm:rounded-2xl hover:bg-indigo-100 active:scale-95 transition-all font-black text-[10px] sm:text-xs uppercase tracking-tighter min-h-[48px]">
-                                <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6" /> Lower
-                              </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="gap-2 flex flex-col">
+                          {room.isAwaitingFeedback ? (
+                            <div className="gap-2 flex flex-col">
+                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Incoming Guess</div>
+                              <div className="text-5xl sm:text-6xl font-black text-slate-900 drop-shadow-sm">{room.lastGuess}</div>
+                              <p className="text-[10px] sm:text-xs font-bold text-slate-500 italic">Secret is <span className="text-indigo-600 font-black px-2 py-1 bg-indigo-50 rounded-lg">{mySecret}</span></p>
+                              <div className="grid grid-cols-3 gap-1">
+                                <button onClick={() => provideFeedback('higher')} className="flex flex-col items-center justify-center gap-0.5 p-2 sm:p-3 bg-amber-50 text-amber-600 border-2 border-amber-100 rounded-lg sm:rounded-xl hover:bg-amber-100 active:scale-95 transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-tighter min-h-[40px]">
+                                  <ChevronUp className="w-4 sm:w-5 h-4 sm:h-5" /> Higher
+                                </button>
+                                <button onClick={() => provideFeedback('correct')} className="flex flex-col items-center justify-center gap-0.5 p-2 sm:p-3 bg-green-50 text-green-600 border-2 border-green-100 rounded-lg sm:rounded-xl hover:bg-green-100 active:scale-95 transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-tighter min-h-[40px]">
+                                  <CheckCircle2 className="w-4 sm:w-5 h-4 sm:h-5" /> Got It
+                                </button>
+                                <button onClick={() => provideFeedback('lower')} className="flex flex-col items-center justify-center gap-0.5 p-2 sm:p-3 bg-indigo-50 text-indigo-600 border-2 border-indigo-100 rounded-lg sm:rounded-xl hover:bg-indigo-100 active:scale-95 transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-tighter min-h-[40px]">
+                                  <ChevronDown className="w-4 sm:w-5 h-4 sm:h-5" /> Lower
+                                </button>
+                              </div>
+                              {feedbackError && <p className="text-red-500 text-[9px] font-black uppercase">{feedbackError}</p>}
                             </div>
-                            {feedbackError && <p className="text-red-500 text-[10px] font-black uppercase">{feedbackError}</p>}
-                          </div>
-                        ) : (
-                          <div className="space-y-4 sm:space-y-6">
-                            <RefreshCw className="w-10 sm:w-12 h-10 sm:h-12 text-slate-200 animate-spin mx-auto" />
-                            <div>
-                              <h3 className="text-base sm:text-xl font-black text-slate-400 uppercase tracking-widest">Defense Mode</h3>
-                              <p className="text-slate-400 text-xs sm:text-sm font-medium mt-1 italic">{opponentName} is calculating...</p>
+                          ) : (
+                            <div className="gap-2 flex flex-col">
+                              <RefreshCw className="w-8 sm:w-10 h-8 sm:h-10 text-slate-200 animate-spin mx-auto" />
+                              <div>
+                                <h3 className="text-sm sm:text-base font-black text-slate-400 uppercase tracking-widest">Defense Mode</h3>
+                                <p className="text-slate-400 text-[10px] sm:text-xs font-medium italic">{opponentName} calculating...</p>
+                              </div>
+                              <div className="p-2 sm:p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 inline-block mx-auto">
+                                <p className="text-[9px] font-black text-indigo-400 uppercase mb-0.5">Secret</p>
+                                <p className="text-lg sm:text-xl font-black text-indigo-600">{mySecret}</p>
+                              </div>
                             </div>
-                            <div className="p-3 sm:p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 inline-block">
-                              <p className="text-[10px] font-black text-indigo-400 uppercase mb-1">Your Secret</p>
-                              <p className="text-xl sm:text-2xl font-black text-indigo-600">{mySecret}</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {/* History */}
-                  <div className="pt-2 sm:pt-3 border-t border-slate-100 flex flex-col flex-shrink-0">
-                    <h4 className="text-[10px] font-black uppercase text-slate-300 tracking-[0.2em] mb-1 sm:mb-2 flex items-center justify-center gap-2">
+                  {/* RIGHT SECTION: History Feed (Desktop Only) */}
+                  <div className="hidden lg:flex lg:col-span-2 flex-col border-l border-slate-200 pl-3">
+                    <h4 className="text-[9px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1.5 flex items-center gap-1">
                       <History className="w-3 h-3 flex-shrink-0" /> Live Feed
                     </h4>
-                    <div className="h-24 sm:h-32 overflow-y-auto space-y-1 pr-1 sm:pr-2 custom-scrollbar flex-1">
+                    <div className="space-y-0.5 overflow-y-auto flex-1 custom-scrollbar pr-1">
                       {room.history.map((item, i) => (
                         <motion.div 
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           key={i} 
-                          className="flex items-center justify-between p-2 sm:p-3 bg-slate-50 rounded-lg sm:rounded-xl text-xs sm:text-base"
+                          className="flex items-center justify-between p-1.5 bg-slate-50 rounded-lg text-[10px]"
                         >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${item.playerId === room.hostId ? 'bg-indigo-500' : 'bg-purple-500'}`} />
-                            <span className="text-[10px] font-bold text-slate-400 uppercase truncate max-w-[60px]">
+                          <div className="flex items-center gap-1 min-w-0">
+                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${item.playerId === room.hostId ? 'bg-indigo-500' : 'bg-purple-500'}`} />
+                            <span className="text-[9px] font-bold text-slate-400 uppercase truncate max-w-[50px]">
                               {item.playerId === room.hostId ? room.hostName : room.guestName}
                             </span>
                           </div>
-                          <span className="font-black text-sm sm:text-base mx-2">{item.guess}</span>
-                          <span className={`text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-lg border uppercase tracking-tighter flex-shrink-0 ${
+                          <span className="font-black mx-1 flex-shrink-0">{item.guess}</span>
+                          <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-tighter flex-shrink-0 ${
+                            item.feedback === 'correct' ? 'bg-green-50 text-green-600 border-green-100' : 
+                            item.feedback === 'higher' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'
+                          }`}>
+                            {item.feedback === 'correct' ? '✓' : item.feedback === 'higher' ? '↑' : '↓'}
+                          </span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* MOBILE: History Feed (Below on Mobile) */}
+                  <div className="lg:hidden col-span-full border-t border-slate-200 pt-2">
+                    <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1.5 flex items-center gap-2 justify-center">
+                      <History className="w-3 h-3 flex-shrink-0" /> Live Feed
+                    </h4>
+                    <div className="h-16 overflow-y-auto space-y-0.5 custom-scrollbar px-1">
+                      {room.history.map((item, i) => (
+                        <motion.div 
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          key={i} 
+                          className="flex items-center justify-between p-1.5 bg-slate-50 rounded text-[10px]"
+                        >
+                          <div className="flex items-center gap-1 min-w-0">
+                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${item.playerId === room.hostId ? 'bg-indigo-500' : 'bg-purple-500'}`} />
+                            <span className="text-[9px] font-bold text-slate-400 uppercase truncate max-w-[50px]">
+                              {item.playerId === room.hostId ? room.hostName : room.guestName}
+                            </span>
+                          </div>
+                          <span className="font-black mx-1">{item.guess}</span>
+                          <span className={`text-[9px] font-black px-1 py-0.5 rounded border uppercase tracking-tighter flex-shrink-0 ${
                             item.feedback === 'correct' ? 'bg-green-50 text-green-600 border-green-100' : 
                             item.feedback === 'higher' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'
                           }`}>
@@ -534,9 +575,72 @@ export default function App() {
 
                   {/* Round Leaderboard */}
                   {room?.leaderboard && (
-                    <div className="bg-slate-900 text-white p-6 sm:p-8 rounded-2xl">
-                      <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Round Leaderboard</div>
-                      <div className="space-y-3">
+                    <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 sm:p-6 rounded-2xl border border-yellow-400/30 shadow-xl">
+                      <div className="text-center mb-4">
+                        <div className="text-[11px] font-black uppercase text-yellow-400 tracking-widest">🏆 Round {roundNumber} Leaderboard</div>
+                      </div>
+                      
+                      {/* Desktop Table View */}
+                      <div className="hidden sm:block overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                          <thead>
+                            <tr className="border-b border-slate-700">
+                              <th className="py-2 px-3 text-[10px] font-black uppercase text-slate-400">Rank</th>
+                              <th className="py-2 px-3 text-[10px] font-black uppercase text-slate-400">Player</th>
+                              <th className="py-2 px-3 text-right text-[10px] font-black uppercase text-slate-400">Wins</th>
+                              <th className="py-2 px-3 text-right text-[10px] font-black uppercase text-slate-400">Losses</th>
+                              <th className="py-2 px-3 text-right text-[10px] font-black uppercase text-slate-400">Average</th>
+                              <th className="py-2 px-3 text-right text-[10px] font-black uppercase text-slate-400">Best Win</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-700">
+                            {Object.entries(room.leaderboard)
+                              .sort((a, b) => {
+                                const aWins = a[1].wins;
+                                const bWins = b[1].wins;
+                                if (aWins !== bWins) return bWins - aWins;
+                                return (a[1].fastestWin ?? Infinity) - (b[1].fastestWin ?? Infinity);
+                              })
+                              .map((entry, index) => {
+                                const [playerId, stats] = entry;
+                                const isLeader = index === 0;
+                                const avgGuesses = stats.wins > 0 ? Math.round(stats.totalGuesses / stats.wins) : '—';
+                                const medal = index === 0 ? '🥇' : '🥈';
+                                return (
+                                  <motion.tr 
+                                    key={playerId}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    className={`${isLeader ? 'bg-gradient-to-r from-yellow-500/20 to-amber-500/20' : ''}`}
+                                  >
+                                    <td className="py-3 px-3">
+                                      <div className="text-lg font-black">{medal}</div>
+                                    </td>
+                                    <td className="py-3 px-3">
+                                      <div className="font-black text-sm">{stats.name}</div>
+                                    </td>
+                                    <td className="py-3 px-3 text-right">
+                                      <div className="font-black text-green-400">{stats.wins}</div>
+                                    </td>
+                                    <td className="py-3 px-3 text-right">
+                                      <div className="font-black text-red-400">{stats.losses}</div>
+                                    </td>
+                                    <td className="py-3 px-3 text-right">
+                                      <div className="font-black text-indigo-400">{avgGuesses}</div>
+                                    </td>
+                                    <td className="py-3 px-3 text-right">
+                                      <div className="font-black text-amber-400">{stats.fastestWin ?? '—'}</div>
+                                    </td>
+                                  </motion.tr>
+                                );
+                              })}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Mobile Card View */}
+                      <div className="sm:hidden space-y-2">
                         {Object.entries(room.leaderboard)
                           .sort((a, b) => {
                             const aWins = a[1].wins;
@@ -547,32 +651,41 @@ export default function App() {
                           .map((entry, index) => {
                             const [playerId, stats] = entry;
                             const isLeader = index === 0;
-                            const avgGuesses = stats.totalGuesses > 0 ? (stats.totalGuesses / stats.wins || 0).toFixed(1) : '—';
+                            const avgGuesses = stats.wins > 0 ? Math.round(stats.totalGuesses / stats.wins) : '—';
+                            const medal = index === 0 ? '🥇' : '🥈';
                             return (
-                              <div 
+                              <motion.div 
                                 key={playerId}
-                                className={`p-4 rounded-xl border-2 ${isLeader ? 'bg-indigo-50/20 border-indigo-400/50' : 'border-slate-700'} flex items-center justify-between`}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className={`p-3 rounded-lg border ${isLeader ? 'bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-yellow-400/40' : 'border-slate-700'}`}
                               >
-                                <div className="flex items-center gap-3">
-                                  {isLeader && <Trophy className="w-5 h-5 text-yellow-400" />}
-                                  <div className="text-xs font-black uppercase text-slate-300">{index === 0 ? '1st' : '2nd'}</div>
-                                  <div className="font-black text-sm">{stats.name}</div>
-                                </div>
-                                <div className="flex gap-6 text-xs font-bold text-slate-300">
-                                  <div className="text-center">
-                                    <div className="text-indigo-400 font-black text-sm">{stats.wins}W</div>
-                                    <div className="text-slate-500">{stats.losses}L</div>
-                                  </div>
-                                  <div className="text-center">
-                                    <div className="text-indigo-400 font-black text-sm">{avgGuesses}</div>
-                                    <div className="text-slate-500">avg</div>
-                                  </div>
-                                  <div className="text-center">
-                                    <div className="text-indigo-400 font-black text-sm">{stats.fastestWin ?? '—'}</div>
-                                    <div className="text-slate-500">best</div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-lg">{medal}</span>
+                                    <div className="font-black text-sm">{stats.name}</div>
                                   </div>
                                 </div>
-                              </div>
+                                <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                                  <div>
+                                    <div className="text-[10px] text-slate-400 uppercase">Wins</div>
+                                    <div className="font-black text-green-400 text-sm">{stats.wins}</div>
+                                  </div>
+                                  <div>
+                                    <div className="text-[10px] text-slate-400 uppercase">Loss</div>
+                                    <div className="font-black text-red-400 text-sm">{stats.losses}</div>
+                                  </div>
+                                  <div>
+                                    <div className="text-[10px] text-slate-400 uppercase">Avg</div>
+                                    <div className="font-black text-indigo-400 text-sm">{avgGuesses}</div>
+                                  </div>
+                                  <div>
+                                    <div className="text-[10px] text-slate-400 uppercase">Best</div>
+                                    <div className="font-black text-amber-400 text-sm">{stats.fastestWin ?? '—'}</div>
+                                  </div>
+                                </div>
+                              </motion.div>
                             );
                           })}
                       </div>
