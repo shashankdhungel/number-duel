@@ -337,7 +337,7 @@ export default function App() {
                 /* PLAYING */
                 <motion.div 
                   key="playing"
-                  className="space-y-4 sm:space-y-6 flex flex-col h-full"
+                  className="space-y-2 sm:space-y-3 flex flex-col h-full"
                 >
                   {/* Scoreboard */}
                   <div className="flex justify-between items-center p-3 sm:p-4 bg-slate-50 rounded-2xl border border-slate-100 flex-shrink-0">
@@ -443,11 +443,11 @@ export default function App() {
                   </div>
 
                   {/* History */}
-                  <div className="pt-4 sm:pt-6 border-t border-slate-100 flex flex-col flex-shrink-0 max-h-40 sm:max-h-48">
-                    <h4 className="text-[10px] font-black uppercase text-slate-300 tracking-[0.2em] mb-2 sm:mb-4 flex items-center justify-center gap-2">
+                  <div className="pt-2 sm:pt-3 border-t border-slate-100 flex flex-col flex-shrink-0">
+                    <h4 className="text-[10px] font-black uppercase text-slate-300 tracking-[0.2em] mb-1 sm:mb-2 flex items-center justify-center gap-2">
                       <History className="w-3 h-3 flex-shrink-0" /> Live Feed
                     </h4>
-                    <div className="h-32 sm:h-40 overflow-y-auto space-y-2 pr-1 sm:pr-2 custom-scrollbar flex-1">
+                    <div className="h-24 sm:h-32 overflow-y-auto space-y-1 pr-1 sm:pr-2 custom-scrollbar flex-1">
                       {room.history.map((item, i) => (
                         <motion.div 
                           initial={{ opacity: 0, x: -10 }}

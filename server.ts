@@ -66,7 +66,7 @@ function generatePlayerId(): string {
 
 // Helper to generate room ID
 function generateRoomId(): string {
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
+  return Math.random().toString(36).substring(2, 6).toUpperCase();
 }
 
 // Helper to send message to client
