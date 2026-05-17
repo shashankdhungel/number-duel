@@ -190,23 +190,21 @@ export default function App() {
   const myRange = iAmHost ? room?.p1Range : room?.p2Range;
 
   return (
-    <div className={`min-h-screen font-sans flex flex-col items-center justify-center p-0 sm:p-4 transition-colors duration-500 ${
-      room?.status === 'playing' ? (isMyTurn ? 'bg-indigo-50/50' : 'bg-slate-50') : 'bg-slate-50'
-    }`}>
+    <div className={`min-h-screen font-sans flex flex-col items-center justify-center p-0 sm:p-4 transition-colors duration-500 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950`}>
       <div className="w-full max-w-full sm:max-w-sm lg:max-w-2xl h-screen sm:h-auto">
         <motion.div 
           layout
-          className="bg-white sm:rounded-[2rem] rounded-none shadow-none sm:shadow-2xl overflow-hidden border-0 sm:border border-slate-100 h-full sm:h-auto flex flex-col"
+          className="bg-white/5 backdrop-blur-sm sm:rounded-[2rem] rounded-none shadow-2xl overflow-hidden border border-white/10 sm:border h-full sm:h-auto flex flex-col"
         >
           {/* Top Branding */}
-          <div className="bg-slate-900 p-4 sm:p-6 text-white text-center flex-shrink-0">
+          <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-4 sm:p-6 text-white text-center flex-shrink-0 border-b border-white/10">
             <h1 className="text-lg sm:text-xl font-black tracking-tighter flex items-center justify-center gap-2">
               <Hash className="w-4 sm:w-5 h-4 sm:h-5 text-indigo-400" />
               NUMBER DUEL
             </h1>
             {roomId && (
               <div 
-                className="mt-2 text-[10px] font-bold text-slate-500 flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-colors"
+                className="mt-2 text-[10px] font-bold text-slate-400 flex items-center justify-center gap-1 cursor-pointer hover:text-indigo-400 transition-colors"
                 onClick={() => {
                   navigator.clipboard.writeText(roomId);
                   alert("Room ID copied!");
@@ -229,11 +227,11 @@ export default function App() {
                   className="space-y-4 sm:space-y-6"
                 >
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Identify Yourself</label>
+                    <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Identify Yourself</label>
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-300 flex-shrink-0" />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-400 flex-shrink-0" />
                       <input 
-                        className="w-full pl-12 pr-4 py-3 sm:py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-indigo-500 focus:bg-white outline-none transition-all font-bold text-base sm:text-slate-700 placeholder:text-slate-300 text-slate-700"
+                        className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white/10 border-2 border-white/20 rounded-2xl focus:border-indigo-400 focus:bg-white/20 outline-none transition-all font-bold text-base text-white placeholder:text-slate-500"
                         placeholder="Your Name"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
@@ -245,14 +243,14 @@ export default function App() {
                     <button 
                       onClick={createRoom}
                       disabled={isLoading}
-                      className="group relative flex items-center justify-center gap-3 p-4 sm:p-5 rounded-2xl bg-indigo-600 text-white font-black text-base hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95 disabled:opacity-50 h-12 sm:h-auto min-h-[48px]"
+                      className="group relative flex items-center justify-center gap-3 p-4 sm:p-5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-base transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 h-12 sm:h-auto min-h-[48px]"
                     >
                       <Users className="w-5 h-5 flex-shrink-0" />
                       HOST NEW GAME
                     </button>
                     <div className="flex gap-2">
                       <input 
-                        className="flex-1 px-4 py-3 sm:py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-slate-300 focus:bg-white outline-none text-center font-black text-base placeholder:text-slate-300 min-h-[48px]"
+                        className="flex-1 px-4 py-3 sm:py-4 bg-white/10 border-2 border-white/20 rounded-2xl focus:border-indigo-400 focus:bg-white/20 outline-none text-center font-black text-base text-white placeholder:text-slate-500 min-h-[48px]"
                         placeholder="ROOM ID"
                         value={guessInput}
                         onChange={(e) => setGuessInput(e.target.value.toUpperCase())}
@@ -260,13 +258,13 @@ export default function App() {
                       <button 
                         onClick={() => joinRoom(guessInput)}
                         disabled={isLoading}
-                        className="px-4 sm:px-6 rounded-2xl bg-slate-900 text-white font-bold text-base hover:bg-black transition-all active:scale-95 disabled:opacity-50 h-12 sm:h-auto min-h-[48px] flex items-center"
+                        className="px-4 sm:px-6 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-base transition-all active:scale-95 disabled:opacity-50 h-12 sm:h-auto min-h-[48px] flex items-center border border-white/20"
                       >
                         JOIN
                       </button>
                     </div>
                   </div>
-                  {error && <p className="text-red-500 text-xs text-center font-bold">{error}</p>}
+                  {error && <p className="text-amber-400 text-xs text-center font-bold">{error}</p>}
                 </motion.div>
               ) : room?.status === 'waiting' ? (
                 /* WAITING */
@@ -277,18 +275,18 @@ export default function App() {
                   className="text-center space-y-6 sm:space-y-8"
                 >
                   <div className="relative">
-                    <div className="w-16 sm:w-20 h-16 sm:h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto">
-                      <RefreshCw className="w-8 sm:w-10 h-8 sm:h-10 text-indigo-500 animate-spin" />
+                    <div className="w-16 sm:w-20 h-16 sm:h-20 bg-indigo-500/20 border border-indigo-400/50 rounded-full flex items-center justify-center mx-auto">
+                      <RefreshCw className="w-8 sm:w-10 h-8 sm:h-10 text-indigo-400 animate-spin" />
                     </div>
                   </div>
                   <div>
-                    <h2 className="text-xl sm:text-2xl font-black text-slate-800">Recruiting Duelist</h2>
+                    <h2 className="text-xl sm:text-2xl font-black text-white">Recruiting Duelist</h2>
                     <p className="text-slate-400 text-xs sm:text-sm font-medium mt-1">Share the Room ID to begin</p>
                   </div>
-                  <div className="p-4 sm:p-6 bg-slate-50 rounded-3xl font-black text-3xl sm:text-4xl tracking-widest text-indigo-600 border-2 border-indigo-100">
+                  <div className="p-4 sm:p-6 bg-white/5 backdrop-blur-sm rounded-3xl font-black text-3xl sm:text-4xl tracking-widest text-indigo-400 border border-white/10">
                     {roomId}
                   </div>
-                  <button className="text-slate-400 text-xs font-black uppercase tracking-widest hover:text-red-500 transition-colors" onClick={() => setRoomId("")}>
+                  <button className="text-slate-400 text-xs font-black uppercase tracking-widest hover:text-amber-400 transition-colors" onClick={() => setRoomId("")}>
                     ABORT MISSION
                   </button>
                 </motion.div>
@@ -299,7 +297,7 @@ export default function App() {
                   className="space-y-6 sm:space-y-8"
                 >
                   <div className="text-center">
-                    <h2 className="text-xl sm:text-2xl font-black text-slate-800">The Secret Number</h2>
+                    <h2 className="text-xl sm:text-2xl font-black text-white">The Secret Number</h2>
                     <p className="text-slate-400 text-xs sm:text-sm font-medium">Pick a number between 0 and 100</p>
                   </div>
 
@@ -308,13 +306,13 @@ export default function App() {
                       <div className="relative">
                         <input 
                           type={showSecret ? "number" : "password"}
-                          className="w-full p-6 sm:p-8 text-4xl sm:text-5xl text-center font-black bg-slate-50 border-2 border-slate-50 rounded-[2rem] focus:border-indigo-500 focus:bg-white outline-none transition-all text-base placeholder:text-slate-200"
+                          className="w-full p-6 sm:p-8 text-4xl sm:text-5xl text-center font-black bg-white/10 border-2 border-white/20 rounded-[2rem] focus:border-indigo-400 focus:bg-white/20 outline-none transition-all text-base text-white placeholder:text-slate-500"
                           placeholder="00"
                           value={guessInput}
                           onChange={(e) => setGuessInput(e.target.value)}
                         />
                         <button 
-                          className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-indigo-500 transition-colors p-2 -m-2 min-h-[48px] min-w-[48px] flex items-center justify-center"
+                          className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400 transition-colors p-2 -m-2 min-h-[48px] min-w-[48px] flex items-center justify-center"
                           onClick={() => setShowSecret(!showSecret)}
                         >
                           {showSecret ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
@@ -325,17 +323,17 @@ export default function App() {
                           setSecretValue(parseInt(guessInput));
                           setGuessInput("");
                         }}
-                        className="w-full py-4 sm:py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all text-base min-h-[48px]"
+                        className="w-full py-4 sm:py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all text-base min-h-[48px]"
                       >
                         LOCK IT IN
                       </button>
                     </div>
                   ) : (
                     <div className="text-center py-8 sm:py-10 space-y-4">
-                      <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
+                      <div className="w-16 h-16 bg-green-500/20 border border-green-400/50 text-green-400 rounded-full flex items-center justify-center mx-auto">
                         <CheckCircle2 className="w-8 h-8" />
                       </div>
-                      <h3 className="text-lg sm:text-xl font-bold text-slate-800">Secret Locked</h3>
+                      <h3 className="text-lg sm:text-xl font-bold text-white">Secret Locked</h3>
                       <p className="text-slate-400 text-xs sm:text-sm italic font-medium leading-relaxed">Waiting for {opponentName} to finalize their entry...</p>
                     </div>
                   )}
@@ -349,15 +347,15 @@ export default function App() {
                   {/* LEFT SECTION: Main Action Area */}
                   <div className="lg:col-span-3 flex flex-col gap-2">
                     {/* Scoreboard */}
-                    <div className="flex justify-between items-center p-2 bg-slate-50 rounded-2xl border border-slate-100 flex-shrink-0">
+                    <div className="flex justify-between items-center p-2 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 flex-shrink-0">
                       <div className="text-left">
-                        <p className={`text-[10px] font-black uppercase ${iAmHost ? 'text-indigo-600' : 'text-slate-400'}`}>{room.hostName}</p>
-                        <p className="text-sm sm:text-base font-black">{room.p1GuessCount} <span className="text-[10px] font-bold text-slate-300 uppercase">Guesses</span></p>
+                        <p className={`text-[10px] font-black uppercase ${iAmHost ? 'text-indigo-400' : 'text-slate-400'}`}>{room.hostName}</p>
+                        <p className="text-sm sm:text-base font-black text-white">{room.p1GuessCount} <span className="text-[10px] font-bold text-slate-400 uppercase">Guesses</span></p>
                       </div>
-                      <div className="w-px h-6 bg-slate-200" />
+                      <div className="w-px h-6 bg-white/20" />
                       <div className="text-right">
-                        <p className={`text-[10px] font-black uppercase ${!iAmHost ? 'text-indigo-600' : 'text-slate-400'}`}>{room.guestName}</p>
-                        <p className="text-sm sm:text-base font-black">{room.p2GuessCount} <span className="text-[10px] font-bold text-slate-300 uppercase">Guesses</span></p>
+                        <p className={`text-[10px] font-black uppercase ${!iAmHost ? 'text-indigo-400' : 'text-slate-400'}`}>{room.guestName}</p>
+                        <p className="text-sm sm:text-base font-black text-white">{room.p2GuessCount} <span className="text-[10px] font-bold text-slate-400 uppercase">Guesses</span></p>
                       </div>
                     </div>
 
@@ -367,22 +365,22 @@ export default function App() {
                         <div className="gap-2 flex flex-col">
                           {room.isAwaitingFeedback ? (
                             <div className="gap-2 flex flex-col">
-                              <RefreshCw className="w-8 sm:w-10 h-8 sm:h-10 text-indigo-300 animate-spin mx-auto" />
+                              <RefreshCw className="w-8 sm:w-10 h-8 sm:h-10 text-indigo-400 animate-spin mx-auto" />
                               <div>
-                                <h3 className="text-base sm:text-lg font-black text-slate-800">Awaiting Verdict</h3>
-                                <p className="text-slate-400 text-xs font-medium">You guessed <span className="text-slate-900 font-black">{room.lastGuess}</span></p>
+                                <h3 className="text-base sm:text-lg font-black text-white">Awaiting Verdict</h3>
+                                <p className="text-slate-400 text-xs font-medium">You guessed <span className="text-indigo-400 font-black">{room.lastGuess}</span></p>
                               </div>
                             </div>
                           ) : (
                             <div className="gap-2 flex flex-col">
                               <div>
-                                <h3 className="text-lg sm:text-xl font-black text-indigo-600">Your Move</h3>
+                                <h3 className="text-lg sm:text-xl font-black text-indigo-400">Your Move</h3>
                                 <p className="text-slate-400 text-[10px] sm:text-xs font-medium">Guess {opponentName}'s secret</p>
                               </div>
                               <div className="flex flex-col sm:flex-row gap-2">
                                 <input 
                                   type="number"
-                                  className="flex-1 p-3 sm:p-4 text-2xl sm:text-3xl font-black bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-slate-200 text-base min-h-[48px]"
+                                  className="flex-1 p-3 sm:p-4 text-2xl sm:text-3xl font-black bg-white/10 border-2 border-white/20 rounded-2xl focus:border-indigo-400 focus:bg-white/20 outline-none transition-all placeholder:text-slate-500 text-white text-base min-h-[48px]"
                                   placeholder="..."
                                   value={guessInput}
                                   onChange={(e) => setGuessInput(e.target.value)}
@@ -390,25 +388,25 @@ export default function App() {
                                 />
                                 <button 
                                   onClick={handleGuess}
-                                  className="px-6 sm:px-8 rounded-2xl bg-indigo-600 text-white font-black shadow-xl shadow-indigo-100 active:scale-95 transition-all text-lg sm:text-xl h-12 sm:h-auto min-h-[48px] flex items-center justify-center flex-shrink-0"
+                                  className="px-6 sm:px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black shadow-lg shadow-indigo-500/20 active:scale-95 transition-all text-lg sm:text-xl h-12 sm:h-auto min-h-[48px] flex items-center justify-center flex-shrink-0"
                                 >
                                   GO
                                 </button>
                               </div>
                               <div className="space-y-1">
-                                <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">
-                                  <span>{myRange?.min}</span>
-                                  <span>Range</span>
-                                  <span>{myRange?.max}</span>
-                                </div>
-                                <div className="h-2 bg-slate-100 rounded-full relative overflow-hidden">
-                                  <motion.div 
-                                    className="absolute top-0 h-full rounded-full bg-gradient-to-r from-indigo-500 to-blue-500"
-                                    animate={{ 
+                                <div className="relative h-2 bg-slate-700 rounded-full">
+                                  <div
+                                    className="absolute h-2 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500"
+                                    style={{
                                       left: `${myRange?.min}%`,
                                       width: `${(myRange?.max || 100) - (myRange?.min || 0)}%`
                                     }}
                                   />
+                                </div>
+                                <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">
+                                  <span>{myRange?.min}</span>
+                                  <span>Range</span>
+                                  <span>{myRange?.max}</span>
                                 </div>
                               </div>
                             </div>
