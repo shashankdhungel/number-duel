@@ -403,10 +403,10 @@ export default function App() {
                                     }}
                                   />
                                 </div>
-                                <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">
-                                  <span>{myRange?.min}</span>
-                                  <span>Range</span>
-                                  <span>{myRange?.max}</span>
+                                <div className="relative h-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                  <span className="absolute" style={{ left: `${myRange?.min}%`, transform: 'translateX(-50%)' }}>{myRange?.min}</span>
+                                  <span className="absolute left-1/2 -translate-x-1/2">Range</span>
+                                  <span className="absolute" style={{ left: `${myRange?.max}%`, transform: 'translateX(-50%)' }}>{myRange?.max}</span>
                                 </div>
                               </div>
                             </div>
@@ -417,31 +417,31 @@ export default function App() {
                           {room.isAwaitingFeedback ? (
                             <div className="gap-2 flex flex-col">
                               <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Incoming Guess</div>
-                              <div className="text-5xl sm:text-6xl font-black text-slate-900 drop-shadow-sm">{room.lastGuess}</div>
-                              <p className="text-[10px] sm:text-xs font-bold text-slate-500 italic">Secret is <span className="text-indigo-600 font-black px-2 py-1 bg-indigo-50 rounded-lg">{mySecret}</span></p>
+                              <div className="text-5xl sm:text-6xl font-black text-indigo-400 drop-shadow-sm">{room.lastGuess}</div>
+                              <p className="text-[10px] sm:text-xs font-bold text-slate-400 italic">Secret is <span className="text-indigo-400 font-black px-2 py-1 bg-indigo-500/30 border border-indigo-500/50 rounded-lg">{mySecret}</span></p>
                               <div className="grid grid-cols-3 gap-1">
-                                <button onClick={() => provideFeedback('higher')} className="flex flex-col items-center justify-center gap-0.5 p-2 sm:p-3 bg-amber-50 text-amber-600 border-2 border-amber-100 rounded-lg sm:rounded-xl hover:bg-amber-100 active:scale-95 transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-tighter min-h-[40px]">
+                                <button onClick={() => provideFeedback('higher')} className="flex flex-col items-center justify-center gap-0.5 p-2 sm:p-3 bg-amber-500/20 text-amber-400 border-2 border-amber-500/50 rounded-lg sm:rounded-xl hover:bg-amber-500/30 active:scale-95 transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-tighter min-h-[40px]">
                                   <ChevronUp className="w-4 sm:w-5 h-4 sm:h-5" /> Higher
                                 </button>
-                                <button onClick={() => provideFeedback('correct')} className="flex flex-col items-center justify-center gap-0.5 p-2 sm:p-3 bg-green-50 text-green-600 border-2 border-green-100 rounded-lg sm:rounded-xl hover:bg-green-100 active:scale-95 transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-tighter min-h-[40px]">
+                                <button onClick={() => provideFeedback('correct')} className="flex flex-col items-center justify-center gap-0.5 p-2 sm:p-3 bg-green-500/20 text-green-400 border-2 border-green-500/50 rounded-lg sm:rounded-xl hover:bg-green-500/30 active:scale-95 transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-tighter min-h-[40px]">
                                   <CheckCircle2 className="w-4 sm:w-5 h-4 sm:h-5" /> Got It
                                 </button>
-                                <button onClick={() => provideFeedback('lower')} className="flex flex-col items-center justify-center gap-0.5 p-2 sm:p-3 bg-indigo-50 text-indigo-600 border-2 border-indigo-100 rounded-lg sm:rounded-xl hover:bg-indigo-100 active:scale-95 transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-tighter min-h-[40px]">
+                                <button onClick={() => provideFeedback('lower')} className="flex flex-col items-center justify-center gap-0.5 p-2 sm:p-3 bg-indigo-500/20 text-indigo-400 border-2 border-indigo-500/50 rounded-lg sm:rounded-xl hover:bg-indigo-500/30 active:scale-95 transition-all font-black text-[9px] sm:text-[10px] uppercase tracking-tighter min-h-[40px]">
                                   <ChevronDown className="w-4 sm:w-5 h-4 sm:h-5" /> Lower
                                 </button>
                               </div>
-                              {feedbackError && <p className="text-red-500 text-[9px] font-black uppercase">{feedbackError}</p>}
+                              {feedbackError && <p className="text-red-400 text-[9px] font-black uppercase">{feedbackError}</p>}
                             </div>
                           ) : (
                             <div className="gap-2 flex flex-col">
-                              <RefreshCw className="w-8 sm:w-10 h-8 sm:h-10 text-slate-200 animate-spin mx-auto" />
+                              <RefreshCw className="w-8 sm:w-10 h-8 sm:h-10 text-indigo-400 animate-spin mx-auto" />
                               <div>
-                                <h3 className="text-sm sm:text-base font-black text-slate-400 uppercase tracking-widest">Defense Mode</h3>
+                                <h3 className="text-sm sm:text-base font-black text-slate-300 uppercase tracking-widest">Defense Mode</h3>
                                 <p className="text-slate-400 text-[10px] sm:text-xs font-medium italic">{opponentName} calculating...</p>
                               </div>
-                              <div className="p-2 sm:p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 inline-block mx-auto">
+                              <div className="p-2 sm:p-3 bg-indigo-500/20 border border-indigo-500/50 rounded-xl inline-block mx-auto">
                                 <p className="text-[9px] font-black text-indigo-400 uppercase mb-0.5">Secret</p>
-                                <p className="text-lg sm:text-xl font-black text-indigo-600">{mySecret}</p>
+                                <p className="text-lg sm:text-xl font-black text-indigo-300">{mySecret}</p>
                               </div>
                             </div>
                           )}
@@ -451,7 +451,7 @@ export default function App() {
                   </div>
 
                   {/* RIGHT SECTION: History Feed (Desktop Only) */}
-                  <div className="hidden lg:flex lg:col-span-2 flex-col border-l border-slate-200 pl-3">
+                  <div className="hidden lg:flex lg:col-span-2 flex-col border-l border-white/10 pl-3">
                     <h4 className="text-[9px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1.5 flex items-center gap-1">
                       <History className="w-3 h-3 flex-shrink-0" /> Live Feed
                     </h4>
@@ -461,20 +461,20 @@ export default function App() {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           key={i} 
-                          className="flex items-center justify-between p-1.5 bg-slate-50 rounded-lg text-[10px]"
+                          className="flex items-center justify-between p-1.5 bg-white/5 backdrop-blur-sm rounded-lg text-[10px] border border-white/5"
                         >
                           <div className="flex items-center gap-1 min-w-0">
-                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${item.playerId === room.hostId ? 'bg-indigo-500' : 'bg-purple-500'}`} />
+                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${item.playerId === room.hostId ? 'bg-indigo-400' : 'bg-purple-400'}`} />
                             <span className="text-[9px] font-bold text-slate-400 uppercase truncate max-w-[50px]">
                               {item.playerId === room.hostId ? room.hostName : room.guestName}
                             </span>
                           </div>
-                          <span className="font-black mx-1 flex-shrink-0">{item.guess}</span>
-                          <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-tighter flex-shrink-0 ${
-                            item.feedback === 'correct' ? 'bg-green-50 text-green-600 border-green-100' : 
-                            item.feedback === 'higher' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'
+                          <span className="font-black mx-1 flex-shrink-0 text-white">{item.guess}</span>
+                          <span className={`text-[10px] font-black px-1.5 py-0.5 rounded border uppercase tracking-tighter flex-shrink-0 ${
+                            item.feedback === 'correct' ? 'bg-green-500/20 text-green-400 border-green-500/50' : 
+                            item.feedback === 'higher' ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'bg-indigo-500/20 text-indigo-400 border-indigo-500/50'
                           }`}>
-                            {item.feedback === 'correct' ? '✓' : item.feedback === 'higher' ? '↑' : '↓'}
+                            {item.feedback}
                           </span>
                         </motion.div>
                       ))}
@@ -482,7 +482,7 @@ export default function App() {
                   </div>
 
                   {/* MOBILE: History Feed (Below on Mobile) */}
-                  <div className="lg:hidden col-span-full border-t border-slate-200 pt-2">
+                  <div className="lg:hidden col-span-full border-t border-white/10 pt-2">
                     <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1.5 flex items-center gap-2 justify-center">
                       <History className="w-3 h-3 flex-shrink-0" /> Live Feed
                     </h4>
@@ -492,18 +492,18 @@ export default function App() {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           key={i} 
-                          className="flex items-center justify-between p-1.5 bg-slate-50 rounded text-[10px]"
+                          className="flex items-center justify-between p-1.5 bg-white/5 backdrop-blur-sm rounded text-[10px] border border-white/5"
                         >
                           <div className="flex items-center gap-1 min-w-0">
-                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${item.playerId === room.hostId ? 'bg-indigo-500' : 'bg-purple-500'}`} />
+                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${item.playerId === room.hostId ? 'bg-indigo-400' : 'bg-purple-400'}`} />
                             <span className="text-[9px] font-bold text-slate-400 uppercase truncate max-w-[50px]">
                               {item.playerId === room.hostId ? room.hostName : room.guestName}
                             </span>
                           </div>
-                          <span className="font-black mx-1">{item.guess}</span>
+                          <span className="font-black mx-1 text-white">{item.guess}</span>
                           <span className={`text-[9px] font-black px-1 py-0.5 rounded border uppercase tracking-tighter flex-shrink-0 ${
-                            item.feedback === 'correct' ? 'bg-green-50 text-green-600 border-green-100' : 
-                            item.feedback === 'higher' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'
+                            item.feedback === 'correct' ? 'bg-green-500/20 text-green-400 border-green-500/50' : 
+                            item.feedback === 'higher' ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'bg-indigo-500/20 text-indigo-400 border-indigo-500/50'
                           }`}>
                             {item.feedback}
                           </span>
@@ -525,11 +525,11 @@ export default function App() {
                       animate={{ rotate: [0, 10, -10, 0] }}
                       transition={{ repeat: Infinity, duration: 4 }}
                     >
-                      <Trophy className={`w-20 sm:w-24 h-20 sm:h-24 mx-auto ${room?.winnerId === gameSocket.playerId ? "text-yellow-400" : "text-slate-200"}`} />
+                      <Trophy className={`w-20 sm:w-24 h-20 sm:h-24 mx-auto ${room?.winnerId === gameSocket.playerId ? "text-yellow-400" : "text-slate-600"}`} />
                     </motion.div>
                   </div>
                   <div className="space-y-2">
-                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter">{room?.winnerId === gameSocket.playerId ? "VICTORY!" : "DEFEATED"}</h2>
+                    <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tighter">{room?.winnerId === gameSocket.playerId ? "VICTORY!" : "DEFEATED"}</h2>
                     <p className="text-slate-400 font-bold uppercase text-[10px] sm:text-xs tracking-widest">
                       {room?.winnerId === gameSocket.playerId ? "You outsmarted the competition" : "The opponent was one step ahead"}
                     </p>
@@ -551,22 +551,22 @@ export default function App() {
                   </div>
 
                   {/* Secrets Revealed */}
-                  <div className="bg-slate-50 p-6 sm:p-8 rounded-2xl border-2 border-slate-200">
+                  <div className="bg-white/5 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border-2 border-white/10">
                     <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Both Secrets Revealed</div>
                     <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className={`p-4 rounded-xl text-center ${room?.winnerId === room?.hostId ? 'bg-green-50 border-2 border-green-200' : 'bg-slate-100 border-2 border-slate-200'}`}>
-                        <div className="text-xs font-black uppercase text-slate-600 mb-2">{room?.hostName}</div>
-                        <div className={`text-2xl sm:text-3xl font-black ${room?.winnerId === room?.hostId ? 'text-green-600' : 'text-slate-400'}`}>{room?.hostSecret}</div>
+                      <div className={`p-4 rounded-xl text-center ${room?.winnerId === room?.hostId ? 'bg-green-500/20 border-2 border-green-500/50' : 'bg-white/5 border-2 border-white/10'}`}>
+                        <div className="text-xs font-black uppercase text-slate-400 mb-2">{room?.hostName}</div>
+                        <div className={`text-2xl sm:text-3xl font-black ${room?.winnerId === room?.hostId ? 'text-green-400' : 'text-slate-500'}`}>{room?.hostSecret}</div>
                       </div>
-                      <div className={`p-4 rounded-xl text-center ${room?.winnerId === room?.guestId ? 'bg-green-50 border-2 border-green-200' : 'bg-slate-100 border-2 border-slate-200'}`}>
-                        <div className="text-xs font-black uppercase text-slate-600 mb-2">{room?.guestName}</div>
-                        <div className={`text-2xl sm:text-3xl font-black ${room?.winnerId === room?.guestId ? 'text-green-600' : 'text-slate-400'}`}>{room?.guestSecret}</div>
+                      <div className={`p-4 rounded-xl text-center ${room?.winnerId === room?.guestId ? 'bg-green-500/20 border-2 border-green-500/50' : 'bg-white/5 border-2 border-white/10'}`}>
+                        <div className="text-xs font-black uppercase text-slate-400 mb-2">{room?.guestName}</div>
+                        <div className={`text-2xl sm:text-3xl font-black ${room?.winnerId === room?.guestId ? 'text-green-400' : 'text-slate-500'}`}>{room?.guestSecret}</div>
                       </div>
                     </div>
-                    <div className="text-center text-sm font-bold text-slate-600">
-                      <span className="text-indigo-600 font-black">{room?.winnerId === room?.hostId ? room?.hostName : room?.guestName}</span> 
+                    <div className="text-center text-sm font-bold text-slate-400">
+                      <span className="text-indigo-400 font-black">{room?.winnerId === room?.hostId ? room?.hostName : room?.guestName}</span> 
                       {' '}guessed correctly in 
-                      <span className="text-indigo-600 font-black ml-1">{room?.winnerId === room?.hostId ? room?.p1GuessCount : room?.p2GuessCount}</span>
+                      <span className="text-indigo-400 font-black ml-1">{room?.winnerId === room?.hostId ? room?.p1GuessCount : room?.p2GuessCount}</span>
                       {' '}guesses
                     </div>
                   </div>
@@ -692,13 +692,13 @@ export default function App() {
                   <div className="space-y-3">
                     <button 
                       onClick={resetGame}
-                      className="w-full py-4 sm:py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all uppercase tracking-widest text-xs sm:text-sm min-h-[48px]"
+                      className="w-full py-4 sm:py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/20 active:scale-95 transition-all uppercase tracking-widest text-xs sm:text-sm min-h-[48px]"
                     >
                       REMATCH
                     </button>
                     <button 
                       onClick={() => setRoomId("")}
-                      className="text-slate-400 text-xs font-black uppercase tracking-[0.3em] hover:text-indigo-600 transition-colors"
+                      className="text-slate-400 text-xs font-black uppercase tracking-[0.3em] hover:text-indigo-400 transition-colors"
                     >
                       LEAVE ARENA
                     </button>
@@ -718,7 +718,7 @@ export default function App() {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #e2e8f0;
+          background: rgba(148, 163, 184, 0.5);
           border-radius: 10px;
         }
         input::-webkit-outer-spin-button,
